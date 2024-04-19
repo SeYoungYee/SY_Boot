@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 스터디공간</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- 추가한것 -->
+    <!-- 1. 닫기 버튼 -->
+    <!-- 2. 노션 새창을 띄워 이동하는 버튼 -->
+    <!-- 3. 나의 다짐을 저장하는 버튼 -->
+    <!-- 4. 다짐 버튼을 누르면 칭찬스티커 이미지에 등록하지않아도 자동출력 -->
+    <!-- 5. 배경 이미지 바꾸기 -->
+    <!-- 6. 인풋박스 타입을 date로 변환하여 정확한 날짜 입력가능하게 -->
+    <!-- 7. 날짜 선택 안할시 alert로 경고창 띄우고 빠꾸 -->
+    <!-- 8. 입장시 미세먼지 농도 알려줌 -->
+    <!-- 9. 오늘의 온도 확인 -->
+    <style>
+        .mytitle {
+            height: 330px;
+            color: black;
+            /* background-color: green; */
+            display: flex;
+            flex-direction: row;
+            /* 4줄 고정, 바꿔가면서 쓸껀 컬럼,로우 밖에없음 */
+            align-items: flex-end;
+            justify-content: center;
+
+            background-image: url("C/Users/SeYoung/Desktop/Bootcamp/ProJect/asd.PNG");
+            background-position: center;
+            background-size: cover;
+
+        }
+
+        .mytitle>button {
+
+            width: 150px;
+            height: 50px;
+            background-color: transparent;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            margin-top: 20px;
+
+            margin-right: 20px;
+        }
+
+        .mycards {
+            width: 1200px;
+            margin: 30px auto 0px auto;
+        }
+
+        .mypostingbox {
+            width: 500px;
+
+            margin: 30px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px blue;
+            border-radius: 5px;
+            /* display: none을 주면 항상 안보이게 */
+            display: none;
+        }
+
+        .mydajimbox {
+            width: 500px;
+
+            margin: 30px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px blue;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .mybtn {
+            display: flex;
+            flex-direction: row;
+            /* 4줄 고정, 바꿔가면서 쓸껀 컬럼,로우 밖에없음 */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mybtn>button {
+            margin-right: 5px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            let url = "http://spartacodingclub.shop/sparta_api/seoulair";
+            fetch(url).then(res => res.json()).then(data => {
+                let mise = data['RealtimeCityAir']['row'][0]['IDEX_NM']
+                $('#msg').text(mise)
+                alert('오늘의 미세먼지는: ' + mise);
+            })
+        })
+
+        function todaymise() {
+            let url2 = "http://spartacodingclub.shop/sparta_api/seoulair";
+            fetch(url2).then(res => res.json()).then(data => {
+                let ondo = data['RealtimeCityAir']['row'][0]['IDEX_MVL'];
+                //$('#mise4073').text('오늘의 미세먼지는:' + mise2);
+                alert('오늘의 온도는: ' + ondo + '도');
+            });
+        }
+
+
+
+        // display: none이 되면서 안보이게
+        function openclose() {
+            $('#postingbox').toggle();
+            // 다짐 작성 모달을 닫음(공부 기록 저장 버튼과 다짐 작성 하기 모달창이 동시에 열리는걸 방지)
+            $('#dajimbox').hide();
+        }
+
+        function openclose2() {
+            $('#dajimbox').toggle();
+            // 포스팅 박스 모달을 닫음(공부 기록 저장 버튼과 다짐 작성 하기 모달창이 동시에 열리는걸 방지)
+            $('#postingbox').hide();
+        }
+
+        function makecard() {
+            let image = $('#image').val();
+            let title = $('#title').val();
+            let content = $('#content').val();
+            let date = $('#date').val();
+
+            if (date == '') {
+                alert('날짜 확인 바람');
+            } else {
+                let temp_html =
+                    `
+            <div class="col">
+                <div class="card h-100">
+                    <img src="${image}"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">${title}</h5>
+                        <p class="card-text">${content}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">${date}</small>
+                    </div>
+                </div>
+            </div>`;
+                $('#card').append(temp_html);
+            }
+        }
+
+        function makedajim() {
+            //let image2 = $('#image2').val();
+            // 변수에 사진을 저장해서 기본값으로 칭찬 스티커가 출력되도록
+            let imageURL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUREhMVFRUXFx0YFhgYGRseHRwiGiEhHSAfHyAbHSgiHx8lHR0aIzEhJSsrMC4uGh8zODMtNygtLisBCgoKDg0OGRAQGy8iHSErKzAwLjAwKzYtLSswLS8tNzcrNy8tMTA3LjArNy0tLTcrLjItLi0rNy8rLy01LS0tLf/AABEIALkAvgMBIgACEQEDEQH/xAAcAAEBAAMBAQEBAAAAAAAAAAAABgQFBwIDAQj/xABHEAACAQMCAwUFAwgGCQUAAAABAgMABBEFIQYSMRNBUWGBByIycZEUQlIjYoKhscHR8BUkMzRykhZDU2Nzg6Lh8TWTs8LS/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAEDBAL/xAAvEQACAQIEAwcEAgMAAAAAAAAAAQIDERIhMVFBYbETcYHB0eHwIzKRoQQiFDNS/9oADAMBAAIRAxEAPwDuNKUoBSlKAUpSgFKUoBSlKAUpSgFKUoBSlKAUpSgFKUoBSlKAUpSgFKUoBSlKAUpSgFeXcAEkgADJJ6DHjU5rXFqpIba1Q3Nzv7ifCmNsu3QY8PLBxmsOLhOa5Ik1Ocyb5FvGSsS9cZxuxGevXzNaqnleTsv2DKveObZWMcAkupPwwLzDyy3w48wTWOL/AFab+ztoLZSOszl2Hn7v7CK3dzELW2c2sCkohKRoMcxHdsO+p3hPjiS6uTay2phcKWO5OMY+IFQR1FaRinFyhG9twZI0HUXH5XUuXyjhQf8AVsa/Rwlcd+p3efIivtqfFghv4rJkHLInOZCwAXPNjYjp7nj3itjxHfTR2zy2sYmkGCF65Gd8Y6nGdh/2qYqmWivyQNSOGLtf7PVJx/jRX/aa8fZ9YiyVmtrkeDoUPpyYH1NbRuIVjs1vbhHiHKpZCCWUsQMY27z34rz/AKVW/a28Pv8ANcJzxnl2wckZ8DsaXqPVJ+C8ga7/AEwkh2vbKaEdO0TEieZJGMD61v8AS9XguF5oJUkHU8p3GfEdR6is0ip3V+DbaZu0QG3mG4lhPKc+Jxsf2+deL05cugKOlRo1m8sSFvl7eDoLmIe8v/EX6bjw+8TVXZXkcyLLE4dGGQwOR/58u6vMoOOfDcH3pSleAKUpQClKUApSlAKUpQH4TUXe6vNfyNb2LmK3Q4muvH82L/8AX7Bjm/dYu5NQnawt2KQJtdzDqf8AdKf1E/PuBDbnWNOtksZIHBjt1jPNyZyFG5xjqe/vz31vGKha+r/XzgDJ0HRYLWPs4FAHe3VmPix76+HEfEkNkIzPz4kflBUZA8SckYA+vlXNeD+KYLScQwLO8E0ipzTOo5e7Kqo5Ru25z0xVv7StOFxp8rLgmL8spH5nxf8ARzV7lRtVSnmmCmu5GVGZFLsFJVRjLEDYb7b1yPR7SW2ki1G8u/skk0jtJE6OWdAQSOXB6nxGwKnrVR7KUmeF7qW5aZZcKqEseTsyyncnv26DuHWsnjrU9MRkS+XtZFBZECsWAbY9MAA4+8d+Xyr1T+nN09d7e5CX1C2ttT1Ufl42haIKOV8OSoOwVl65JO2dqzuKreXTo4EttQWCJE5RG45mY8xYtgI2c5A6AD1qZtJ7O61OzWygaFBIGcHGSUPPnAZsDC47utWXHHCl3Ndpd23ZPiPk5ZeiHf3gCCD8WfIgbGt21GUYt2VtHYGgu765l0m6muLlLhC0Sx8owVIkHMGHIpHVeua+OjaV2GpacpkZy8Ky+8fh5lf3V8hiqP2Vyw9ncWYXmaKTLuSCshJK5VTuAOTH0PfgZlnrsN+91FDHGlxCrpbyNyljkMvMu2VAYd3cR44qObi5RSy9VYGZqftAsYJTCzszA4YopKqfM9+PLNUF3epHE07HKKhckb7AZ28dq5DoXAl3KyQzwrDCj80j+7zv5AgknbYYwBknc1svaFok9sktwt5IYpX5OxOQMN90e9jAAO2BsKylQpYlGMswdG0bU47qBZ4weRwdmGDscEEehqdv9Als5DdacNjvNa/dceKfhbw/kHbaQFtLCMybLFCGfHkMn1zmpzRuPpZbmGOS27KGfIiYn3jjv8CCRj95rOMZXk4faUq+H9ciu4+0iJBBw6HZkPgRWzqR4k0iSCT+kbIflB/bxDpMvft+MeP7+tBourRXUKzwnKt3Hqp71YdxH87b1lOKtijp0BnUpSswKUpQClKUAqa4z1d41S1t/wC83B5E3+BfvOcdMDp6nfGKo3cAEkgADJJ6DFR3CMRupZ9TfI58xW2R8Ma7ZwcjJPXz5vGtaaWcnouoKHh/Ro7SBYI+g3Zu9ierH5/wrYsoIIIyDsQaj+AuMFuYxFNIBcLsc4HOPxL3Z8QPCrGpVjKM3i1BzT2oaVzzWEKRkRs7IezXYczIO4YB5cnfwrCttYg0iSe0gE13IzKOU4VF2+EYyWOG3wvl3V1iubcW6Pew6gLywj5zKnKxwCA2MHPMQBsFIPiDXTRqqS7OWlt9c7kNj7PeKJLiSa2mhjgaIBkRFZcA7EFWPUe7vt8XSpXi64W21h7m7tjLAQojBA5T7igEFhykhg23Xvqr4J4UuYbiS+vJQ00iFSq47ypySABn3AMAY61bFQetR1YU6jcVdNfLFJ3gnWYbuEyw2/YhW7PBVR0APuleo3x6GtlLc/aIJhayLzjtIlbfCyLld9u5utYvFN7dQxZsrYTyHI+JQE2+LBI5t+4EVAcNz3COsWmSmWV1Ml6tzGVSOTOCzYwyOzZHIM7LnzrzGljvNZfv8g2Vh7MOSGFlnMV3HzFpIyeVs5wu+CANhzDGd8g9314c9myxpbyzOyXMchdjE3usA2y7jpygZxjqRvXQUzgZxnvx0r1Xl/yqjyuBWo4n0y3nhzdAmOI9qcEj4AfDc7E7Vt6EVhGTi7oHPjxYt/dx2cHK1rLEwn5wVbfOy5IOR7vTPXyr1w3pFha6gbaMTSzpHzB5CpWP80YAwcEb47+tbXXOALO4JYIYZOvPF7u/iV+E/PAPnWl0HhS+srwSpJHPHIQsrvnnC9c7nOdh0J7q7FKm4tRdstOZDolRN0P6NvBMNrS6blkG2IpD0fyB3z6+AFU+p6tHA0Kvn8tIIlx4nOM+W2PWvWtaalzBJA/wuuPke4/MHBrng8Ouj+fopm0qZ4C1F3ga3mP5a2bsZPEgfC3qBjPfyk1TV4nHC2mBSlK8gUpSgJb2i3rLaiCP+0uXWFfk3xH5Y90/4qwOK+I4dOtRaQsDMIwiKOqbY528D3jxNZOrIZtXtYyPdghaf1Y8g/Wq1sVv7WS9e1EaPKsYeR8Ke8DlPfkDB8hiuqNko3V+IP5+rrvs64YYpHeXMkjt8UKF25UHccZ6kd3QV9uOuBIpYnmtowkygtyoMB8bkYH3vAj5fKibU0trBbiQFVSFTynY55QAu/Q5wK2q18cFg4uxDaXV0kal5HVFHUsQB9TWFa8Q2kjckdzC7dwWRSfpmpXT9AE6f0hqzc2RzrExIjiTqMjxx4+uTWC9/oM57ExpHnYSBDGPRhjHrtWCox0zdtlkU6XWt1jX7a1GbiZI/AE5Y/JRlj6Cuf8AD02oTiS1s5ybVXIS7lU84X8K5PvHzx6rsKrdF4ItID2jKZ5TuZZvfYnx32FSVKEH/Z+C89ga8+0NZP7rZ3dx+cseFPqcn6gVgWOp3cU09zHo83NOVL5nT7g5RgcmRt1roYGNhX7UVWCulHXm/YEQeP3j/vOnXkQ72Cc6j12rd6LxdZXW0M6FvwNlW26+62CfmNq3laHXuD7O7H5WFQ/dInuuPUdfkcimKlLVW7vcGnn4znuJGh0u2+0BDh53bliB8j970PyBG9fkmp6zAOeW1t7hBuwgZg4HkG6/IA1P63Zanpdu0VvL2lqDkSKi9pECckHy/Owf0a1fB/Hd1HcRpPK00MjBG58ErzHAYHGdiRkHO2a6lSTjeCTXjd+jIdW4c4ghvYu1hJ2OHRtmQ+DCszUb+OCNppTyovxHBPXbooJO57qj9ShFprFvLHsl6rxzKOhZMEN4ZOR9G8TVzXHUjFNNaMpw3jzjD7ZKgh5kiiOUJ2Yt+Ly8h/Hav4M44ubjlia1aUggPKh5QB4tkYz34B38K2PtD4WjuLd5Y4x28Y5lKjdwNypx8WRnHfnFbzhXTVt7SGJV5cIC3iWIyxPnmumdSk6SsiGk1A/ZdVilG0d4vZSdcc6/AcDbJ2UfNqsalPaXbk2ZlTIeCRJVI6jlOM/Q59KpbO4EkaSL0dQw+TDI/bXNPOMZeH49in2pSlZAUpSgIBNHS8v9RzI6hRCitGxBB5d/mAy7itfoen3EjIlrHHBLZySRy3BJ5ZDnBXl3LZAUkk7Hpjat5wGc3OpE9ftRH0LYqwihVc8qhckscADJPUnHefGuudZw/ryXQEXxLr0/aizimjgKRCS6uCPdQHbCg53JOw67ipPirU544ltprgXdvKEljlAAJCt7ynx9c93yrF4vuCReyf7S9WJvlCpIH1wfSthYaWrnSbeQZWWGcsOnxgt+/aumEIwSb+ZXIU/tSR307MW6BkZ8fh7vTPKa55wbw2twWnuG7O1i3kcnHMfwg/TJ8x3mqfULm+t4xpBAczHs7ecHrH0YEdcqpx5DxxmrC94Riew+wISigDDDrzA55iO/J6/Os1PsoKN9Xry3Bs9FureSJTashiX3V5Ogx3Y7qz6nuDOG1sITF2nOztzMcYHQDAGfAVQ1xTtieF3RTm3tE44nt5vstthCqgvIQCfe3AUNtjHeQevdipHT/aFfxMGabtVB95HVcEeAIUEH+cGutcScL2t379wmGUf2inlYAb4J7x16576577KdNtZppTLFzOnLJDznPukkZ5ehIIG+PpXdSlS7JvDpr8+WIdbt5OZFbBHMAcHqMjOD519KVquJ9dSyt2uJFZgCoCrjJLHAxkj+RXAk5Oy4lInjriPUob5IbdD2ZC8iCMMJifiBYjI8MAjA3PWsPjPhKOznj1COMtarKrzxL1TBB5lH4M9V7vIHbqynO9eJ4VdSjAMrAhgdwQdiDW8f5GG1lbfmCEN6uo6rAYDzwWaGR5B0LyjAUfQfRvCsPi+6Sa9njuZJVtLOFHZIzgu8mMfP4gP/ACaz+Bh9iu7jSmxy/wBvbt3sjbEE95XAGTvs3disLW9NaW/1KFBzNLZIyjxZSAo+qj9VbxsqluCWX516kP3gnVhFcRwRyyS2lyrGDtfjjeP4oz6em646nNNrvFcUQeKFhNc7qkSDmPN+cB0A6nNcv0SCaGGCWSN4xHqMfLzgqfeXDjDDphRk10bi3S5FkhurJAtyZOzdguxRwcmQDqFIU5PSpVhDtFfj1W4Mg3P2zS2clSZLc82OnMF3GO7DDpX24EuO00+2bwjC/wCTKfurH0zhlbWOdxLK7yI5k5iAhY7lgigAH91efZn/AOmwf8z/AOR6wnhwPDpfyZSopSlc4FKUoCP4Qj7O/wBSiJ/1iSD/AJgZv3irCo2LEOtuM/3m2DfpIeXH+VCfWrKta2qe6XoCJ4LtUkk1FJUVx9sY4dQR02ODXvjf8nd6ZP0VZ2iJ/wCIAB+w1+8KHl1LU4+gLRSD9JTn9dZHtMtC9i7r8cLLMvlyHc/5S1b3+sr6PzQMTTP6zrNxKd0tI1iT/E+Sx+fxD6Va1D+yqTtY7u5PWW6c+nKp/axq4rGvlPDskgRvtER4ja6ggLfZZcyAdeSTAY/qA9arLO6SVFljYMjAFSO8GvpJGGBVgCCMEHcEHqDUdJ7O4gx7G5uoI2OWijkwu/hkHHrmicZRUZO1gfvG+u8wOnWpD3U3uED/AFan4mY93u/tzWJrHDstkLa7slMj20YiljHWWPqcfnZJOPPywafQOHLezUiCPBb4nJy7fNjv6dK21eu1UbKGnPiCUtvaJp7JztOIyPiR1YMD3jGNz8s1qFmfWLmF1R0sLd+05nGDM6/Dyjryj+OdzgW02lwO3O8MTN+IopP1IrLVQBgbCp2kI5wWfPgD9pSlYAiPaInYy2OoLsYZxHIfzJdjn5dP0jXrh48+s6g43CRwx5+agn9YP0rL9p9t2mmXA8FVv8rA/urB9laM8VxeOPeuJ2YfJPdH0bnHpXZF/QcuOn7T9Qfb2pY+zQZ6/aosfP3v3ZqyqN9pPvCyi29+9iH7R++rKsZ/64eIMPWJOWCZj3RufoprTezeMrptuD4Mf8zsR+oivXtCu+z0+c97LyD9IgfszWz4etTFawREYKxID8woz+vNTSl3vogbClKVkBSlKAivaHmGSzvx0hl5ZNvuv1PoAfVhVorZGR0NYGv6Ytzby27bB1wD4EbqfRgDjyrTezzVGltuwl2mtmMMgPX3dlP0GPmprZ/2p3/56P3BiSHsdcUn4bm1KjzaM53/AEQfrVhcQh1ZGGVYFSPEHY1H+0uMxpb36D3rWZWbzRyFYep5R6mrGGUMoZTkMAQfEHcVamcYyXd+PYER7KIuyiu7YnJhu3X0AVQfXlNXVRGlf1bWrmE7JdxLMnhzJsw+fxH6Vb1P5Gc8W6TApSlYgUpSgFKUoBSlKAlvafc9nplyfFQv+Zgv762/Dmnrb2sMC9EjAz0ycZJ+ZJJ9amvaO3bSWWnruZ5w8g/3cW7Z/b+iatgK3llSit235eoI7in8pqenQdymSZv0R7v6xj1qyqL0E/aNWu7n7kCLbIfE5y/qCCPWrJ3ABJOABkn5VKuWGOy65gi+PD29zZaeN+eTtZRnHuJn9oD+q1bVE8EZurm51JvhY9jB1+BcZOPPC+vNVtSrlaG3UClKViBSlKAVB8SA6ffJqKg9hNiO5A7j3Pj0z8wfxVeVj6hZJNG8MqhkcYYfz0IO4PcRWlOeF56cQeL22S4heNsNHKhGR3hh1H1yDUz7Or5lSTT5j+WtG5P8SfcYeWNvljxrE4X1B7Cf+jLs+4T/AFWU9GB6IfA+A7jt4Z+/G9jJBLHqtuMvEOWdB9+M9fVf4H7tbKFr03o9Hz+ZA+vtG06Qxx3sA/L2jdoPzk++vywM/IHxqj0bU47mCO4iOUdcjy8QfMHIPyr3pt9HPEk0RDI4yD+4+YOQR5VDyBtHuC4BOnTtlgBnsHPfj8B/7dQObzFY44H9y09AdCpXzt51dQ6MGVhlWByCD3g19K5wKUpQClKUArxNKFUsxAVQSSegA3JNeia5/rl8+qzGwtGItUP9buF6N/u0PQ57z+7rpTp43yWrB9uCkN7eT6s4xGR2FoD+BT7zepz9XFUvFOsC0tZbg9VX3B4sdlH1x6ZrYWdqkUaxRqFRFCqB3AVFag39I6gtuu9tZnnmPc8n3U9N8/peVaJqpO7+1dEDc8BaQbazjV89q+ZZc9eZ99/MDA+YNa/j7Unfk023OZrjZj+BO8n5gH0DeVbniriCOyhMr7sdo072b+Hia1vBGhSR895db3U+7Z+4vUL5d2R3YA7tyebqy8O/0QKDStPS3hSCMYVFCjxPiTjvJyT5k1l0pWDd8wKUpUApSlAKUpQGo4n4fivYTFJsw3jcdUPiPLxHf9CJzQeI5LeQafqWz/DHMfgkHQZJ+mfQ4PW6rXa7osN3EYp15h3H7ynxU9x/k5rWFRWwy06dwJGRX0eZnUF9PlbLAbmBj3gfhP8AO+M1eqahB9kknbllh7JnPQq4x08DnpUbJJd6YDFcIbywPu82MsinuYHu8jt0wR0rXz6GZ4JRpFwHglx2ls7YKHIOV5vh6dD3Z3O1dDgp2k348H37Mh74VstRs7WO6gCzRSAyPa7gqCcgxkk743x+omq/QeNrS5wofspehil91s+Azs3pv5Vge0KCSPTQiFgiGNZuTr2Y2YD15fTPdXjUeF7AWRkt7JbjKAxhCeZs9DzZz35NJOFRYpat8PMFtSuO3mh3thbx3BupIQZFVo0YssStnuY4YjbYD1NbDUL6aKIyf06jjGVVIo2dvAABv/FeP8a/2yv4PyuU6lWl1zim0tR+WmUN3IvvOf0RuPmcCoDRdMutStZHOoTidGKmIkqo8A3Lg7jv7t9jit3o/DNnbWLS3tnHG4Vu15m7QnB2Ktk4LbEAb5OKdjCLtJ3ey9weG+3atthrKxYb/wC2lH/1U/zzA16sLNdM1KOGLItbtOUKSTyyRjrv4jHzLeVbT2YQSJp0XaZGSzICckIxJUfLG48iKe0DRZLhLcwsEaKcMZOYLyKQQzZJ7jynFesaxunpHNe/eD58WcRuXFhY+9dPszDpCvezHuOPp9Af03Fro1osZPM5ycD45XPVvIeZ6DA3rQWerw22bTSIjc3Df2kx3BP4mbbO58lGetb/AIc4O5JPtd6/2i6O+Tuqf4R4jxwAO4DqUlGEbPTbi/REMfhrQJZ5hqOoD8p1ghPSIdQSPxeA7up3+G2pSuac3J3ZRSlK8AUpSgFKUoBSlKAUpSgBFSGscAwO/bWzNazDcNHsv+UEY/RI9ar6V6jOUXeLBz+W81W2Ux3Ful9CRykp8RB2wQBk7dcr61MaPxqbFmiiR3tySRDL7rxE9QGGcjPiPpvns9Y15YRSjEsSSD89Q37RW8a8bNSjqDnllerqUyS3s1vFBGeaO27RSWbxfOM48P1dc1dppWmxsJI47VW7iOTb5V4uuA9Pfc26j/CzL+pTisQ+zbT/APZP/wC438a9SqQlo2lt8YMLiGAQ3Bv7K5t0kYATRSSKElx0PXZvp8+udDqWvpdSL/SE8SW6EMLe3JkMhH42XbHr/Gq6P2dacP8AUk/OR/3NW3suG7SIgx20SkdDyAn6neqq1NLi3vlcEuON7iccun2MjjoHk2QY+Xu9PzhRODru7IfUrolevYxbL6nGP1H51e0rHtrfYrdQYWlaVDbp2cEaxr5dT5kncnzNZtKVk23mwKUpUApSlAKUpQClKUApSlAKUpQClKUApSlAKUpQClKUApSlAKUpQClKUApSlAKUpQH/2Q==";
+
+            let title2 = $('#title2').val();
+            let content2 = $('#content2').val();
+            let date2 = $('#date2').val();
+
+            if (date2 == '') {
+                alert('날짜 확인바람');
+            } else {
+                let temp_html2 =
+                    `
+            <div class="col">
+                <div class="card h-100">
+                    <img src="${imageURL}"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h3 class="card-title">${title2}</h5>
+                        <p class="card-text">${content2}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">${date2}</small>
+                    </div>
+                </div>
+            </div>`;
+                $('#card').append(temp_html2);
+            }
+
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class="mytitle">
+
+        <!-- <p>내일 배움 캠프를 시작하며</p>
+        <p>현재 대구의 미세먼지 : <span id="msg">나쁨</span></p>
+         -->
+        <button onclick="openclose()" class="btn btn-primary">공부 기록 저장</button>
+        <button
+            onclick="window.open('https://www.notion.so/ko-kr/templates')"
+            class="btn btn-secondary">노션 작성 하기</button>
+        <button onclick="openclose2()" class="btn btn-primary">다짐 작성 하기</button>
+        <button onclick="todaymise()">오늘의 온도</button>
+    </div>
+
+
+    <div id="postingbox" class="mypostingbox">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="image" placeholder="앨범 이미지">
+            <label for="floatingInput">학습 이미지</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="title" placeholder="앨범 제목">
+            <label for="floatingInput">학습 제목</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="content" placeholder="앨범 내용">
+            <label for="floatingInput">학습 내용</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="date" class="form-control" id="date" placeholder="앨범 날짜">
+            <label for="floatingInput">학습 날짜</label>
+        </div>
+
+        <div class="mybtn">
+            <button onclick="makecard()" type="button" class="btn btn-primary">기록하기</button>
+            <button onclick="openclose()" type="button" id="closebtn" class="btn btn-outline-primary">닫기</button>
+        </div>
+    </div>
+
+    <!-- 다짐 작성 하기 -->
+
+    <div id="dajimbox" class="mydajimbox">
+        <!-- 다짐 이미지 넣는 부분 -->
+        <!-- <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="image2" placeholder="다짐 이미지">
+            <label for="floatingInput">다짐 이미지</label>
+        </div> -->
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="title2" placeholder="나의 다짐">
+            <label for="floatingInput">나의 다짐</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="content2" placeholder="하고 싶은 말">
+            <label for="floatingInput">하고 싶은 말</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="date" class="form-control" id="date2" placeholder="날짜">
+            <label for="floatingInput">날짜</label>
+        </div>
+
+        <div class="mybtn">
+            <button onclick="makedajim()" type="button" class="btn btn-primary">기록하기</button>
+            <button onclick="openclose2()" type="button" id="closebtn" class="btn btn-outline-primary">닫기</button>
+        </div>
+    </div>
+
+
+    <div class="mycards">
+        <div id="card" class="row row-cols-1 row-cols-md-4 g-4">
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTojJXEA1_TzxUqSlFhPKbBjlQPyy9mTB7ysw&s"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">학습 과목</h5>
+                        <p class="card-text">학습 내용</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">학습 날짜</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTojJXEA1_TzxUqSlFhPKbBjlQPyy9mTB7ysw&s"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">학습 과목</h5>
+                        <p class="card-text">학습 내용</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">학습 날짜</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTojJXEA1_TzxUqSlFhPKbBjlQPyy9mTB7ysw&s"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">학습 과목</h5>
+                        <p class="card-text">학습 내용</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">학습 날짜</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTojJXEA1_TzxUqSlFhPKbBjlQPyy9mTB7ysw&s"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">학습 과목</h5>
+                        <p class="card-text">학습 내용</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">학습 날짜</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</body>
+
+</html>
